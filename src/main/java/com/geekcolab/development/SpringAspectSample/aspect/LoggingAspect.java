@@ -63,4 +63,39 @@ public class LoggingAspect {
         LOG.info("-------------------------------------------");
     }
 
+    @Around(value = "executeLogging()")
+    public Object logAfterReturningMethodCall(ProceedingJoinPoint joinPoint) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Object returnValue = joinPoint.proceed();
+
+        LOG.info("-------------------------------------------");
+        LOG.info("Logging - with Around Advice");
+        StringBuilder message = new StringBuilder("Method: ");
+        message.append(joinPoint.getSignature().getName());
+
+        long totalTime = System.currentTimeMillis()-startTime;
+        message.append(" totalTime: ").append(totalTime).append("ms");
+
+        Object[] args = joinPoint.getArgs();
+        if(null!=args && args.length>0){
+            message.append(" args=[ | ");
+            Arrays.asList(args).forEach(arg->{
+                message.append(arg).append(" | ");
+            });
+            message.append("]");
+        }
+
+        if(returnValue instanceof Collection){
+            message.append(", returning: ").append(((Collection<?>) returnValue).size()).append(" instance(s)");
+        } else{
+            message.append(", returning: ").append(returnValue.toString());
+        }
+
+        LOG.info(message.toString());
+        LOG.info("-------------------------------------------");
+
+        return returnValue;
+
+    }
+
 }
