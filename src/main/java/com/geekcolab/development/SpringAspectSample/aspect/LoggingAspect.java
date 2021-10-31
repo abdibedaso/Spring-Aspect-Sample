@@ -38,4 +38,29 @@ public class LoggingAspect {
         LOG.info("-------------------------------------------");
     }
 
+    @AfterReturning(value = "executeLogging()", returning = "returnValue")
+    public void logAfterReturningMethodCall(JoinPoint joinPoint, Object returnValue){
+        LOG.info("-------------------------------------------");
+        LOG.info("Logging - with AfterReturning Advice");
+        StringBuilder message = new StringBuilder("Method: ");
+        message.append(joinPoint.getSignature().getName());
+        Object[] args = joinPoint.getArgs();
+        if(null!=args && args.length>0){
+            message.append(" args=[ | ");
+            Arrays.asList(args).forEach(arg->{
+                message.append(arg).append(" | ");
+            });
+            message.append("]");
+        }
+
+        if(returnValue instanceof Collection){
+            message.append(", returning: ").append(((Collection<?>) returnValue).size()).append(" instance(s)");
+        } else{
+            message.append(", returning: ").append(returnValue.toString());
+        }
+
+        LOG.info(message.toString());
+        LOG.info("-------------------------------------------");
+    }
+
 }
